@@ -1,0 +1,80 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+@section Scripts {
+    <script src="~/dist/browser/signalr.min.js"></script>
+    <script type="text/javascript">
+        document.getElementById("sendButton").disabled = true;
+        document.getElementById("disconnectOthersButton").disabled = true;
+
+        var connection = new signalR.HubConnectionBuilder()
+            .withUrl("/demohub")
+            .build();
+
+        connection.on("ReceiveMessage", function (connId, message) {
+            showMessage(`(${connId}) : ${message}`);
+        });
+
+        connection.onclose(err => {
+            document.getElementById("sendButton").disabled = true;
+            document.getElementById("disconnectOthersButton").disabled = true;
+            showMessage(`Disconnected. ${err ? err.toString() : ""}`);
+        });
+
+        document.getElementById("sendButton").addEventListener("click", function (event) {
+            var message = document.getElementById("messageInput").value;
+            connection.invoke("SendMessage", message).catch(function (err) {
+                return console.error(err.toString());
+            });
+            event.preventDefault();
+        });
+
+        document.getElementById("disconnectOthersButton").addEventListener("click", function (event) {
+            connection.invoke("DisconnectOthers").catch(function (err) {
+                return console.error(err.toString());
+            });
+            event.preventDefault();
+        });
+
+        connection.start().then(function () {
+            document.getElementById("sendButton").disabled = false;
+            document.getElementById("disconnectOthersButton").disabled = false;
+            showMessage("Connected.");
+        }).catch(function (err) {
+            return console.error(err.toString());
+        });
+
+        function showMessage(message) {
+            const li = document.createElement("li");
+            li.textContent = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");;
+            document.getElementById("messagesList").appendChild(li);
+        }
+    </script>
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-2">Message</div>
+        <div class="col-4"><input type="text" id="messageInput" /></div>
+    </div>
+    <div class="row">&nbsp;</div>
+    <div class="row">
+        <div class="col-12">
+            <input type="button" id="sendButton" value="Send Message" />
+            <input type="button" id="disconnectOthersButton" value="Disconnect Others" />
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <hr />
+    </div>
+</div>
+<div class="row">
+    <div class="col-6">
+        <ul id="messagesList"></ul>
+    </div>
+</div>
