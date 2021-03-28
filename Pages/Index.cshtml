@@ -12,6 +12,7 @@
 
         var connection = new signalR.HubConnectionBuilder()
             .withUrl("/demohub")
+            .withAutomaticReconnect()
             .build();
 
         connection.on("ReceiveMessage", function (connId, message) {
