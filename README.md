@@ -1,3 +1,5 @@
+[![.NET](https://github.com/atonasting/disconnect-able-SignalR/actions/workflows/dotnet.yml/badge.svg)](https://github.com/atonasting/disconnect-able-SignalR/actions/workflows/dotnet.yml)
+
 # Disconnectable SignalR demo
 
 SignalR does not support disconnect client from server. This is a demo project to solve the problem.
